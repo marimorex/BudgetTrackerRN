@@ -18,6 +18,7 @@ const MAPPING = {
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'building.columns.fill': 'account-balance',
 } as IconMapping;
 
 /**
