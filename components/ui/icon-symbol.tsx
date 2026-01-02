@@ -19,6 +19,7 @@ const MAPPING = {
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
   'building.columns.fill': 'account-balance',
+  'tag.fill': 'category',
 } as IconMapping;
 
 /**
