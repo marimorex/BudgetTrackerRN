@@ -1,3 +1,4 @@
+import { Picker } from "@react-native-picker/picker";
 import React, { useEffect, useMemo, useState } from "react";
 import { FlatList, Pressable, SafeAreaView, Text, TextInput, View } from "react-native";
 import { Account, Category, Transaction } from "../../src/domain";
@@ -54,7 +55,6 @@ export default function TransactionsScreen() {
   }, [selectedAccountId]);
 
   const selectedAccount = accounts.find(a => a.id === selectedAccountId) ?? null;
-  const selectedCategory = categories.find(c => c.id === selectedCategoryId) ?? null;
 
   function addTransaction() {
     try {
@@ -90,23 +90,14 @@ export default function TransactionsScreen() {
       {/* Account selector */}
       <View style={{ gap: 6 }}>
         <Text style={{ fontWeight: "600" }}>Account</Text>
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+        <Picker
+          selectedValue={selectedAccountId}
+          onValueChange={(itemValue) => setSelectedAccountId(itemValue)}
+        >
           {accounts.map((a) => (
-            <Pressable
-              key={a.id}
-              onPress={() => setSelectedAccountId(a.id)}
-              style={{
-                borderWidth: 1,
-                borderRadius: 999,
-                paddingVertical: 6,
-                paddingHorizontal: 10,
-                opacity: selectedAccountId === a.id ? 1 : 0.6,
-              }}
-            >
-              <Text>{a.name} ({a.currency})</Text>
-            </Pressable>
+            <Picker.Item key={a.id} label={`${a.name} (${a.currency})`} value={a.id} />
           ))}
-        </View>
+        </Picker>
         {selectedAccount ? (
           <Text style={{ opacity: 0.7 }}>
             Balance: {formatCents(selectedAccount.balanceCents)} {selectedAccount.currency}
@@ -119,28 +110,14 @@ export default function TransactionsScreen() {
       {/* Category selector */}
       <View style={{ gap: 6 }}>
         <Text style={{ fontWeight: "600" }}>Category</Text>
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+        <Picker
+          selectedValue={selectedCategoryId}
+          onValueChange={(itemValue) => setSelectedCategoryId(itemValue)}
+        >
           {categories.map((c) => (
-            <Pressable
-              key={c.id}
-              onPress={() => setSelectedCategoryId(c.id)}
-              style={{
-                borderWidth: 1,
-                borderRadius: 999,
-                paddingVertical: 6,
-                paddingHorizontal: 10,
-                opacity: selectedCategoryId === c.id ? 1 : 0.6,
-              }}
-            >
-              <Text>
-                {c.name} ({c.type})
-              </Text>
-            </Pressable>
+            <Picker.Item key={c.id} label={`${c.name} (${c.type})`} value={c.id} />
           ))}
-        </View>
-        {!selectedCategory ? (
-          <Text style={{ color: "crimson" }}>No category selected</Text>
-        ) : null}
+        </Picker>
       </View>
 
       {/* Form */}

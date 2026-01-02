@@ -20,6 +20,7 @@ const MAPPING = {
   'chevron.right': 'chevron-right',
   'building.columns.fill': 'account-balance',
   'tag.fill': 'category',
+  'person.crop.circle': 'account-circle',
 } as IconMapping;
 
 /**
