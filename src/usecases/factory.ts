@@ -1,7 +1,7 @@
 import { SQLiteAccountDao, SQLiteBankDao, SQLiteCategoryDao, SQLiteTransactionDao } from "../dao";
 import { ListAccountsUseCase } from "./account";
 import { CreateBankUseCase, DeleteBankUseCase, ListBanksUseCase, UpdateBankUseCase } from "./bank";
-import { ListCategoriesUseCase } from "./category";
+import { CreateCategoryUseCase, DeleteCategoryUseCase, ListCategoriesUseCase, UpdateCategoryUseCase } from "./category";
 import { CreateTransactionUseCase, ListTransactionsUseCase } from "./transaction";
 
 export function makeUseCases() {
@@ -19,5 +19,8 @@ export function makeUseCases() {
     listBanks: new ListBanksUseCase(bankDao),
     updateBank: new UpdateBankUseCase(bankDao),
     deleteBank: new DeleteBankUseCase(bankDao),
+    createCategory: new CreateCategoryUseCase(categoryDao),
+    updateCategory: new UpdateCategoryUseCase(categoryDao),
+    deleteCategory: new DeleteCategoryUseCase(categoryDao),
   };
 }
