@@ -1,6 +1,6 @@
 import { db } from "../../db/database";
 import { Account } from "../../domain/account";
-import { AccountId, CurrencyType } from "../../domain/types";
+import { AccountId, BankId, CurrencyType } from "../../domain/types";
 import { AccountDao } from "../AccountDao";
 
 function mapRow(row: any): Account {
@@ -47,10 +47,22 @@ export class SQLiteAccountDao implements AccountDao {
     }
   }
 
-  list(): Account[] {
-    const stmt = db.prepareSync(`SELECT * FROM account ORDER BY created_at DESC`);
+  list(filter?: { bankId?: BankId | null }): Account[] {
+    const where: string[] = [];
+    const args: any[] = [];
+
+    if (filter?.bankId) {
+      where.push(`bank_id = ?`);
+      args.push(filter.bankId);
+    } else if (filter?.bankId === null) {
+      where.push(`bank_id IS NULL`);
+    }
+
+    const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+    
+    const stmt = db.prepareSync(`SELECT * FROM account ${whereSql} ORDER BY created_at DESC`);
     try {
-      const result = stmt.executeSync();
+      const result = stmt.executeSync(args);
       return result.getAllSync().map(mapRow);
     } finally {
       stmt.finalizeSync();

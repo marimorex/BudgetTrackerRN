@@ -1,10 +1,10 @@
 import { AccountDao } from "../../dao/AccountDao";
-import { Account } from "../../domain";
+import { Account, BankId } from "../../domain";
 
 export class ListAccountsUseCase {
   constructor(private readonly accountDao: AccountDao) {}
 
-  execute(): Account[] {
-    return this.accountDao.list();
+  execute(filter?: { bankId?: BankId | null }): Account[] {
+    return this.accountDao.list(filter);
   }
 }
