@@ -14,6 +14,7 @@ export interface TransactionDao {
     offset?: number;
   }): Transaction[];
 
+  update(tx: Transaction): void;
   delete(id: TransactionId): void;
 
   sumByAccount(accountId: AccountId, filter?: { fromDate?: string; toDate?: string }): number;

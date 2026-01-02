@@ -90,6 +90,28 @@ export class SQLiteTransactionDao implements TransactionDao {
     }
   }
 
+  update(tx: Transaction): void {
+    assertValidTransactionAmount(tx.amountCents);
+
+    const stmt = db.prepareSync(
+      `UPDATE "transaction"
+       SET account_id = ?, category_id = ?, amount_cents = ?, date = ?, description = ?
+       WHERE id = ?`
+    );
+    try {
+      stmt.executeSync([
+        tx.accountId,
+        tx.categoryId ?? null,
+        tx.amountCents,
+        tx.date,
+        tx.description ?? null,
+        tx.id,
+      ]);
+    } finally {
+      stmt.finalizeSync();
+    }
+  }
+
   delete(id: TransactionId): void {
     const stmt = db.prepareSync(`DELETE FROM "transaction" WHERE id = ?`);
     try {
