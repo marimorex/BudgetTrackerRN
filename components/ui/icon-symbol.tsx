@@ -21,6 +21,7 @@ const MAPPING = {
   'building.columns.fill': 'account-balance',
   'tag.fill': 'category',
   'person.crop.circle': 'account-circle',
+  'chart.bar.xaxis': 'bar-chart',
 } as IconMapping;
 
 /**
