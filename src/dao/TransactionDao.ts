@@ -9,10 +9,17 @@ export interface TransactionDao {
     accountId?: AccountId;
     categoryId?: CategoryId;
     fromDate?: string; // ISO
-    toDate?: string;   // ISO
+    toExclusiveDate?: string;   // ISO
     limit?: number;
     offset?: number;
   }): Transaction[];
+
+  sum(filter?: {
+    accountId?: AccountId;
+    categoryId?: CategoryId;
+    fromDate?: string; // ISO
+    toExclusiveDate?: string;   // ISO
+  }): number;
 
   update(tx: Transaction): void;
   delete(id: TransactionId): void;

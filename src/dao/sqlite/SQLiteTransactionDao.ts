@@ -56,7 +56,7 @@ export class SQLiteTransactionDao implements TransactionDao {
     accountId?: AccountId;
     categoryId?: CategoryId;
     fromDate?: string;
-    toDate?: string;
+    toExclusiveDate?: string;
     limit?: number;
     offset?: number;
   }): Transaction[] {
@@ -66,7 +66,7 @@ export class SQLiteTransactionDao implements TransactionDao {
     if (filter?.accountId) { where.push(`account_id = ?`); args.push(filter.accountId); }
     if (filter?.categoryId) { where.push(`category_id = ?`); args.push(filter.categoryId); }
     if (filter?.fromDate) { where.push(`date >= ?`); args.push(filter.fromDate); }
-    if (filter?.toDate) { where.push(`date <= ?`); args.push(filter.toDate); }
+    if (filter?.toExclusiveDate) { where.push(`date < ?`); args.push(filter.toExclusiveDate); }
 
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
@@ -85,6 +85,38 @@ export class SQLiteTransactionDao implements TransactionDao {
     try {
       const result = stmt.executeSync(args);
       return result.getAllSync().map(mapRow);
+    } finally {
+      stmt.finalizeSync();
+    }
+  }
+
+  sum(filter?: {
+    accountId?: AccountId;
+    categoryId?: CategoryId;
+    fromDate?: string;
+    toExclusiveDate?: string;
+  }): number {
+    const where: string[] = [];
+    const args: any[] = [];
+
+    if (filter?.accountId) { where.push(`account_id = ?`); args.push(filter.accountId); }
+    if (filter?.categoryId) { where.push(`category_id = ?`); args.push(filter.categoryId); }
+    if (filter?.fromDate) { where.push(`date >= ?`); args.push(filter.fromDate); }
+    if (filter?.toExclusiveDate) { where.push(`date < ?`); args.push(filter.toExclusiveDate); }
+
+    const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+
+    const sql = `
+      SELECT COALESCE(SUM(amount_cents), 0) as total
+      FROM "transaction"
+      ${whereSql}
+    `;
+
+    const stmt = db.prepareSync(sql);
+    try {
+      const result = stmt.executeSync(args);
+      const row = result.getFirstSync() as { total: number | null } | undefined;
+      return Number(row?.total ?? 0);
     } finally {
       stmt.finalizeSync();
     }

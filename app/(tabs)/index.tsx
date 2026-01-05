@@ -1,7 +1,7 @@
-
 import { CompactSelect } from "@/components/CompactSelect";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useEffect, useMemo, useState } from "react";
-import { FlatList, Pressable, SafeAreaView, Text, TextInput, View } from "react-native";
+import { FlatList, Modal, Platform, Pressable, SafeAreaView, Text, TextInput, View } from "react-native";
 import { Account, Bank, Category, Transaction } from "../../src/domain";
 import { BankId, TransactionId } from "../../src/domain/types";
 import { makeUseCases } from "../../src/usecases";
@@ -28,6 +28,8 @@ export default function TransactionsScreen() {
   
   const [desc, setDesc] = useState("");
   const [amountText, setAmountText] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editingTransactionId, setEditingTransactionId] = useState<TransactionId | null>(null);
 
@@ -38,7 +40,6 @@ export default function TransactionsScreen() {
     const cats = uc.listCategories.execute();
     setCategories(cats);
 
-    // Initial load of accounts for the selected bank
     const bankIdForFilter = selectedBankId === CASH_BANK_ID ? null : selectedBankId;
     const accs = uc.listAccounts.execute({ bankId: bankIdForFilter });
     setAccounts(accs);
@@ -56,7 +57,6 @@ export default function TransactionsScreen() {
     reload();
   }, []);
 
-  // When bank selection changes, reload accounts
   useEffect(() => {
     const bankIdForFilter = selectedBankId === CASH_BANK_ID ? null : selectedBankId;
     const accs = uc.listAccounts.execute({ bankId: bankIdForFilter });
@@ -94,25 +94,23 @@ export default function TransactionsScreen() {
       
       const amountCents = Math.round(signedAmount * 100);
 
+      const payload = {
+        accountId: selectedAccountId,
+        categoryId: selectedCategoryId,
+        amountCents,
+        description: desc.trim() || null,
+        date: date.toISOString(),
+      };
+
       if (editingTransactionId) {
-        uc.updateTransaction.execute({
-          id: editingTransactionId,
-          accountId: selectedAccountId,
-          categoryId: selectedCategoryId,
-          amountCents,
-          description: desc.trim() || null,
-        });
+        uc.updateTransaction.execute({ id: editingTransactionId, ...payload });
       } else {
-        uc.createTransaction.execute({
-          accountId: selectedAccountId,
-          categoryId: selectedCategoryId,
-          amountCents,
-          description: desc.trim() || null,
-        });
+        uc.createTransaction.execute(payload);
       }
 
       setDesc("");
       setAmountText("");
+      setDate(new Date());
       setEditingTransactionId(null);
       reload();
     } catch (e: any) {
@@ -128,12 +126,14 @@ export default function TransactionsScreen() {
     setSelectedCategoryId(tx.categoryId ?? null);
     setAmountText((Math.abs(tx.amountCents) / 100).toFixed(2));
     setDesc(tx.description ?? "");
+    setDate(new Date(tx.date));
   }
 
   function handleCancelEdit() {
     setEditingTransactionId(null);
     setDesc("");
     setAmountText("");
+    setDate(new Date());
   }
 
   function handleDelete(id: TransactionId) {
@@ -141,11 +141,18 @@ export default function TransactionsScreen() {
     reload();
   }
 
+  const onChangeDate = (event: any, selectedDate?: Date) => {
+    const currentDate = selectedDate || date;
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
+    setDate(currentDate);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, padding: 16 }}>
       <Text style={{ fontSize: 24, fontWeight: "700", marginBottom: 12 }}>Transactions</Text>
 
-      {/* Form */}
       <View style={{ borderWidth: 1, borderRadius: 12, padding: 12, marginBottom: 12 }}>
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
           <TextInput
@@ -169,12 +176,43 @@ export default function TransactionsScreen() {
           </View>
         </View>
 
-        <TextInput
-          value={desc}
-          onChangeText={setDesc}
-          placeholder="Description (e.g. Groceries)"
-          style={{ borderWidth: 1, borderRadius: 12, padding: 12, marginBottom: 8 }}
-        />
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
+          <TextInput
+            value={desc}
+            onChangeText={setDesc}
+            placeholder="Description (e.g. Groceries)"
+            style={{ flex: 1, borderWidth: 1, borderRadius: 12, padding: 12 }}
+          />
+          <Pressable onPress={() => setShowDatePicker(true)} style={{ flex: 1, borderWidth: 1, borderRadius: 12, justifyContent: 'center', alignItems: 'center', padding: 12, backgroundColor: '#e0e0e0' }}>
+            <Text style={{ fontSize: 12, opacity: 0.6, marginBottom: 2 }}>Date:</Text>
+            <Text>{date.toLocaleDateString()}</Text>
+          </Pressable>
+        </View>
+
+        {showDatePicker && (
+          <Modal
+            transparent={true}
+            animationType="slide"
+            visible={showDatePicker}
+            onRequestClose={() => setShowDatePicker(false)}
+          >
+            <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+              <View style={{ backgroundColor: 'white', padding: 16 }}>
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={date}
+                  mode="date"
+                  is24Hour={true}
+                  display="default"
+                  onChange={onChangeDate}
+                />
+                <Pressable onPress={() => setShowDatePicker(false)} style={{ borderWidth: 1, borderRadius: 12, padding: 12, alignItems: 'center', marginTop: 8 }}>
+                  <Text>Done</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Modal>
+        )}
 
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
           <View style={{ flex: 1 }}>
@@ -202,7 +240,7 @@ export default function TransactionsScreen() {
             />
           </View>
         </View>
-
+        
         {selectedAccount && (
           <Text style={{ opacity: 0.7, textAlign: 'right', marginBottom: 8 }}>
             Balance: {formatCents(selectedAccount.balanceCents)} {selectedAccount.currency}

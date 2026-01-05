@@ -22,6 +22,7 @@ const MAPPING = {
   'tag.fill': 'category',
   'person.crop.circle': 'account-circle',
   'chart.bar.xaxis': 'bar-chart',
+  'doc.text': 'description',
 } as IconMapping;
 
 /**

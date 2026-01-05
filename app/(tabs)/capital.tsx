@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList } from 'react-native';
-import { makeUseCases } from '../../src/usecases';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { Account } from '../../src/domain';
+import { makeUseCases } from '../../src/usecases';
 
 function formatCents(cents: number): string {
   const sign = cents < 0 ? '-' : '';
@@ -11,14 +12,23 @@ function formatCents(cents: number): string {
 
 export default function CapitalScreen() {
   const uc = useMemo(() => makeUseCases(), []);
-  const accounts = uc.listAccounts.execute();
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [totalCapital, setTotalCapital] = useState(0);
 
-  const totalCapital = accounts.reduce((sum, account) => {
-    if (account.type === 'CREDIT_CARD' || account.type === 'CREDIT') {
-      return sum - account.balanceCents;
-    }
-    return sum + account.balanceCents;
-  }, 0);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchedAccounts = uc.listAccounts.execute();
+      setAccounts(fetchedAccounts);
+
+      const newTotalCapital = fetchedAccounts.reduce((sum, account) => {
+        if (account.type === 'CREDIT_CARD' || account.type === 'CREDIT') {
+          return sum - account.balanceCents;
+        }
+        return sum + account.balanceCents;
+      }, 0);
+      setTotalCapital(newTotalCapital);
+    }, [uc])
+  );
 
   const renderAccount = ({ item }: { item: Account }) => (
     <View style={styles.accountItem}>

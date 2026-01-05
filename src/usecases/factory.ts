@@ -2,6 +2,8 @@ import { SQLiteAccountDao, SQLiteBankDao, SQLiteCategoryDao, SQLiteTransactionDa
 import { CreateAccountUseCase, DeleteAccountUseCase, ListAccountsUseCase, UpdateAccountUseCase } from "./account";
 import { CreateBankUseCase, DeleteBankUseCase, ListBanksUseCase, UpdateBankUseCase } from "./bank";
 import { CreateCategoryUseCase, DeleteCategoryUseCase, ListCategoriesUseCase, UpdateCategoryUseCase } from "./category";
+import { GetCapitalAtDateUseCase } from "./reports/GetCapitalAtDateUseCase";
+import { GetMonthlySummaryUseCase } from "./reports/GetMonthlySummaryUseCase";
 import { CreateTransactionUseCase, DeleteTransactionUseCase, ListTransactionsUseCase, UpdateTransactionUseCase } from "./transaction";
 
 export function makeUseCases() {
@@ -27,5 +29,7 @@ export function makeUseCases() {
     createCategory: new CreateCategoryUseCase(categoryDao),
     updateCategory: new UpdateCategoryUseCase(categoryDao),
     deleteCategory: new DeleteCategoryUseCase(categoryDao),
+    getMonthlySummary: new GetMonthlySummaryUseCase(txDao),
+    getCapitalAtDate: new GetCapitalAtDateUseCase(accountDao, txDao),
   };
 }
