@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { FlatList, Pressable, SafeAreaView, Text, TextInput, View } from "react-native";
+import { FlatList, Pressable, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Account, AccountType, Bank, CurrencyType } from "../../src/domain";
 import { makeUseCases } from "../../src/usecases";
 import { AccountId, BankId } from "../../src/domain/types";
@@ -97,7 +98,7 @@ export default function AccountsScreen() {
     setType(account.type);
     setCurrency(account.currency);
     setBalance((account.balanceCents / 100).toFixed(2));
-    setSelectedBankId(account.bankId);
+    setSelectedBankId(account.bankId ?? null);
   }
 
   function handleCancelEdit() {

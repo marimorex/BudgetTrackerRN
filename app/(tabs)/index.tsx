@@ -1,7 +1,8 @@
 import { CompactSelect } from "@/components/CompactSelect";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useEffect, useMemo, useState } from "react";
-import { FlatList, Modal, Platform, Pressable, SafeAreaView, Text, TextInput, View } from "react-native";
+import { FlatList, Modal, Platform, Pressable, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Account, Bank, Category, Transaction } from "../../src/domain";
 import { BankId, TransactionId } from "../../src/domain/types";
 import { makeUseCases } from "../../src/usecases";

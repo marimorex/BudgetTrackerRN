@@ -1,7 +1,8 @@
 import { CompactSelect } from '@/components/CompactSelect';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useMemo, useState } from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Account, Category } from '../../src/domain';
 import { makeUseCases } from '../../src/usecases';
 import { MonthlySummary } from '../../src/usecases/reports/GetMonthlySummaryUseCase';
@@ -43,16 +44,19 @@ export default function ReportsScreen() {
       accountId: selectedAccountId === ALL_FILTER ? undefined : selectedAccountId,
       categoryId: selectedCategoryId === ALL_FILTER ? undefined : selectedCategoryId,
     };
+     console.log(filters)
     const summaryData = uc.getMonthlySummary.execute(filters);
     setSummary(summaryData);
 
-    const endOfMonth = new Date(yearNum, monthNum +1, 0);
+    const endOfMonth = new Date(yearNum, monthNum, 0);
+    console.log(endOfMonth)
+
     const capitalAtMonthEnd = uc.getCapitalAtDate.execute(endOfMonth);
     setMonthlyCapital(capitalAtMonthEnd);
   }
 
   const monthOptions = Array.from({ length: 12 }, (_, i) => ({
-    value: (i).toString(),
+    value: (i+1).toString(),
     label: new Date(2024, i, 1).toLocaleString('default', { month: 'long' }),
   }));
 

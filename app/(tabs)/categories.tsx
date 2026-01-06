@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { FlatList, Pressable, SafeAreaView, Text, TextInput, View } from "react-native";
+import { FlatList, Pressable, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Category, CategoryType } from "../../src/domain";
 import { makeUseCases } from "../../src/usecases";
 import { CategoryId } from "../../src/domain/types";
