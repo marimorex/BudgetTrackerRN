@@ -47,7 +47,7 @@ export class SQLiteAccountDao implements AccountDao {
     }
   }
 
-  list(filter?: { bankId?: BankId | null }): Account[] {
+  list(filter?: { bankId?: BankId | null, currency?: CurrencyType }): Account[] {
     const where: string[] = [];
     const args: any[] = [];
 
@@ -56,6 +56,11 @@ export class SQLiteAccountDao implements AccountDao {
       args.push(filter.bankId);
     } else if (filter?.bankId === null) {
       where.push(`bank_id IS NULL`);
+    }
+
+    if (filter?.currency) {
+      where.push(`currency = ?`);
+      args.push(filter.currency);
     }
 
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
