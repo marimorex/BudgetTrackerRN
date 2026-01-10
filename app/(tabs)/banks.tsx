@@ -1,112 +1,47 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { FlatList, Pressable, SafeAreaView, Text, TextInput, View } from "react-native";
+import React, { useCallback, useMemo, useState } from "react";
+import { FlatList, Pressable, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Bank } from "../../src/domain";
 import { makeUseCases } from "../../src/usecases";
 import { BankId } from "../../src/domain/types";
+import { Link, useFocusEffect } from "expo-router";
 
 export default function BanksScreen() {
   const uc = useMemo(() => makeUseCases(), []);
 
   const [banks, setBanks] = useState<Bank[]>([]);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [editingBankId, setEditingBankId] = useState<BankId | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   function reload() {
     const bankList = uc.listBanks.execute();
     setBanks(bankList);
   }
 
-  useEffect(() => {
-    reload();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [])
+  );
 
-  function handleAddOrUpdateBank() {
+  function handleDelete(id: BankId) {
     try {
-      setError(null);
-      if (!name.trim()) {
-        throw new Error("Bank name cannot be empty");
-      }
-
-      if (editingBankId) {
-        uc.updateBank.execute({
-          id: editingBankId,
-          name: name.trim(),
-          description: description.trim(),
-        });
-      } else {
-        uc.createBank.execute({
-          name: name.trim(),
-          description: description.trim(),
-        });
-      }
-
-      setName("");
-      setDescription("");
-      setEditingBankId(null);
+      uc.deleteBank.execute(id);
       reload();
     } catch (e: any) {
-      setError(e?.message ?? "Error");
+      // This will fail if accounts are using this bank.
+      // In a real app, you'd show a user-friendly error.
+      alert(e.message);
     }
   }
 
-  function handleEdit(bank: Bank) {
-    setEditingBankId(bank.id);
-    setName(bank.name);
-    setDescription(bank.description ?? "");
-  }
-
-  function handleCancelEdit() {
-    setEditingBankId(null);
-    setName("");
-    setDescription("");
-  }
-
-  function handleDelete(id: BankId) {
-    uc.deleteBank.execute(id);
-    reload();
-  }
-
-  const editingBank = banks.find(b => b.id === editingBankId);
-
   return (
     <SafeAreaView style={{ flex: 1, padding: 16, gap: 12 }}>
-      <Text style={{ fontSize: 24, fontWeight: "700" }}>Banks</Text>
-
-      {/* Form */}
-      <View style={{ gap: 8 }}>
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          placeholder="Bank Name (e.g. My Bank)"
-          style={{ borderWidth: 1, borderRadius: 12, padding: 12 }}
-        />
-        <TextInput
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Description (optional)"
-          style={{ borderWidth: 1, borderRadius: 12, padding: 12 }}
-        />
-
-        {error ? <Text style={{ color: "crimson" }}>{error}</Text> : null}
-
-        <View style={{ flexDirection: "row", gap: 8 }}>
-          {editingBankId && (
-            <Pressable
-              onPress={handleCancelEdit}
-              style={{ flex: 1, borderWidth: 1, borderRadius: 12, padding: 12, alignItems: "center", backgroundColor: "gray" }}
-            >
-              <Text style={{ fontWeight: "700", color: "white" }}>Cancel</Text>
-            </Pressable>
-          )}
-          <Pressable
-            onPress={handleAddOrUpdateBank}
-            style={{ flex: 1, borderWidth: 1, borderRadius: 12, padding: 12, alignItems: "center" }}
-          >
-            <Text style={{ fontWeight: "700" }}>{editingBankId ? "Update Bank" : "Add Bank"}</Text>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <Text style={{ fontSize: 24, fontWeight: "700" }}>Banks</Text>
+        <Link href="/banks/form" asChild>
+          <Pressable style={{ borderWidth: 1, borderRadius: 12, padding: 12, alignItems: "center" }}>
+            <Text style={{ fontWeight: "700" }}>Create Bank</Text>
           </Pressable>
-        </View>
+        </Link>
       </View>
 
       {/* List */}
@@ -122,9 +57,11 @@ export default function BanksScreen() {
               Created: {new Date(item.createdAt).toLocaleDateString()}
             </Text>
             <View style={{ flexDirection: "row", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-              <Pressable onPress={() => handleEdit(item)}>
-                <Text style={{ color: "blue" }}>Edit</Text>
-              </Pressable>
+              <Link href={{ pathname: "/banks/form", params: { id: item.id } }} asChild>
+                <Pressable>
+                  <Text style={{ color: "blue" }}>Edit</Text>
+                </Pressable>
+              </Link>
               <Pressable onPress={() => handleDelete(item.id)}>
                 <Text style={{ color: "crimson" }}>Delete</Text>
               </Pressable>
