@@ -5,7 +5,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { initDb } from "../src/db/database";
 import { seedIfEmpty } from "../src/db/seeds";
 
@@ -15,11 +15,15 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [dbReady, setDbReady] = useState(false);
 
   useEffect(() => {
     initDb();
     seedIfEmpty();
+    setDbReady(true);
   }, []);
+
+  if (!dbReady) return null;
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
