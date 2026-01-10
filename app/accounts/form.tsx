@@ -67,7 +67,7 @@ export default function AccountFormScreen() {
     }
   }
 
-  const accountTypeOptions = (["CASH", "CURRENT", "CREDIT_CARD", "SAVINGS", "CREDIT"] as AccountType[]).map(t => ({ label: t.replace(/_/g, ' '), value: t }));
+  const accountTypeOptions = (["CASH", "TDC", "SAVINGS", "CREDIT", "DEBIT", "INVESTMENTS"] as AccountType[]).map(t => ({ label: t.replace(/_/g, ' '), value: t }));
   const currencyOptions = (["EUR", "USD"] as CurrencyType[]).map(c => ({ label: c, value: c }));
   const bankOptions = banks.map(b => ({ label: b.name, value: b.id }));
 
