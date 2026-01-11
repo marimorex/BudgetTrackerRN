@@ -30,6 +30,10 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        <Stack.Screen name="accounts/form" options={{ presentation: 'modal', title: 'Account Form' }} />
+        <Stack.Screen name="banks/form" options={{ presentation: 'modal', title: 'Bank Form' }} />
+        <Stack.Screen name="categories/form" options={{ presentation: 'modal', title: 'Category Form' }} />
+        <Stack.Screen name="index/form" options={{ presentation: 'modal', title: 'Transaction Form' }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

@@ -104,7 +104,7 @@ export default function TransactionsScreen() {
     <SafeAreaView style={{ flex: 1, paddingHorizontal: 16 }}>
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <Text style={{ fontSize: 24, fontWeight: "700" }}>Transactions</Text>
-        <Link href="/transactions/form" asChild>
+        <Link href="/form" asChild>
           <Pressable style={{ borderWidth: 1, borderRadius: 12, padding: 12, alignItems: "center" }}>
             <Text style={{ fontWeight: "700" }}>Add Transaction</Text>
           </Pressable>
@@ -137,7 +137,7 @@ export default function TransactionsScreen() {
               {getCategoryName(item.categoryId)} - {new Date(item.date).toLocaleDateString()}
             </Text>
             <View style={{ flexDirection: "row", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-              <Link href={{ pathname: "/transactions/form", params: { id: item.id } }} asChild>
+              <Link href={{ pathname: "/form", params: { id: item.id } }} asChild>
                 <Pressable><Text style={{ color: "blue" }}>Edit</Text></Pressable>
               </Link>
               <Pressable onPress={() => handleDelete(item.id)}><Text style={{ color: "crimson" }}>Delete</Text></Pressable>
